@@ -1,0 +1,14 @@
+//解决axios跨域问题
+module.exports={
+    devServer:{
+        proxy:{
+            'api':{
+                target:'https://api.qq.jsososo.com/',//第三方接口
+                changeOrigin:true,//在本地创建虚拟服务器（服务器与服务器交互不会出现跨域问题）
+                pathRewrite:{//路径重写
+                    '^/api':''
+                }
+            }
+        }
+    }
+}
