@@ -1,18 +1,26 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    这是首页
+    <button @click="toatclick">测试mintui</button>
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
 
+import {Toast} from 'mint-ui';
 export default {
   name: 'Home',
   components: {
-    HelloWorld
+   
+  },
+  methods:{
+    toatclick(){
+     Toast({
+       message:'提示',
+       position:'bottom',
+       duration:5000
+     });
+    }
   }
 }
 </script>
