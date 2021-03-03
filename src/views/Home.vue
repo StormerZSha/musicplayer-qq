@@ -49,6 +49,7 @@
             :title="item.name" 
             :label="item.singer"
             is-link
+            @click.native="addplaylist(item.mid,item.name)"
            ></mt-cell>
         </div>
         <div class="album">
@@ -56,7 +57,7 @@
             <img slot="icon" src="../assets/icon-album.png" width="20px" >
           </mt-cell>
            <mt-cell v-for="(item,index) in searchResult.album.itemlist" :key="index"
-             :title="item.name"
+             :title="item.name" 
            >
              <img slot="icon" :src="item.pic" width="40px" height="40px">
              {{item.singer}}
@@ -83,9 +84,36 @@
         </div>
       </div>
     </div>
-    
+    <!-- 搜索与播放中间部分暂定 -->
     <div class="tabbar">
-    
+    </div>
+    <!-- 音乐播放器 -->
+    <div class="musicplayer">
+      <!-- 迷你播放器 -->
+      <div class="minplayer" @click="bigPlayerisShow=true">
+        <img src="../assets/icon-defaultplayer.png"  width="50px" class="albumpic">
+        <div class="musicname">Music Player</div>
+        <img src="../assets/icon-play.png" width="30px" class="icon-play">
+      </div>
+      <mt-popup v-model="bigPlayerisShow" position="bottom" :moadl="false" closeOnClickModal=false>
+         <div class="bigplayer">
+           <span class="closebigplayer" @click="bigPlayerisShow=false">X</span>
+           <img src="../assets/icon-defaultplayer.png"  class="bigalbumpic" >
+           <div class="playerset">
+             <audio controls >
+               <source src="#">
+               您的浏览器不支持在线播放
+             </audio>
+           </div>
+           <span @click="playListisShow=true">歌单测试</span>
+          <mt-popup v-model="playListisShow" position="bottom" :modal="false" closeOnClickModal=false>
+            <div class="playlist">
+              这是歌单测试
+              <span @click="playListisShow=false">关闭歌单测试</span>
+            </div>
+          </mt-popup>
+         </div>
+      </mt-popup>
     </div>
   </div>
 </template>
@@ -94,15 +122,16 @@
 
 import {Search,
         Cell,
-        Button 
+        Button,
+        Popup,
+        Actionsheet
 } from 'mint-ui';
 import axios from 'axios';
 import vueAxios from 'vue-axios';
 
 export default {
   name: 'Home',
-  components: {
-   
+  components: { 
   },
   data(){
     return {
@@ -117,6 +146,8 @@ export default {
         song:{}
       },//快速搜索结果(复杂数据需要设定结构)
       searchResultisShow:false,//搜索结果的显示隐藏
+      bigPlayerisShow:false,//完整播放器的显示与隐藏
+      playListisShow:false,//播放列表的显示与隐藏
     }
   },
   methods:{
@@ -170,6 +201,9 @@ export default {
     },
     clearHistory(){
       this.$store.state.searchHistory=[];//存储搜索历史的数组清空
+    },
+    addplaylist(mid,name){//调用全局方法,添加播放列表
+     this.$store.commit('addPlayList',{mid,name});
     }
   },
   created(){//页面创建时，调用获取热门搜索
@@ -209,5 +243,48 @@ export default {
   outline: none;
   border: 1px solid #fff;
   background-color: #fff;
+}
+.musicplayer{
+  width: 100%;
+  height: 50px;
+  background-color: #fff;
+  border-top: 1px solid #ccc;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+}
+.musicname{
+  margin-bottom: 20px;
+}
+.musicname{
+  position: absolute;
+  left: 75px;
+  top: 15px
+}
+.icon-play{
+  position: absolute;
+  right: 30px;
+  top: 10px;
+}
+.mint-popup{
+  width: 100%;
+  height: 100%;
+}
+.bigalbumpic{
+  width: 100%;
+  height: 50%;
+}
+.playerset{
+  width: 100%;
+  height: 50%;
+  background-color: rgba(0,0,0,.2);
+}
+.bigplayer{
+  position: relative;
+}
+.closebigplayer{
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>
