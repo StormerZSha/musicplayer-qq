@@ -42,7 +42,9 @@
       <!-- 实际搜索结果(单曲,专辑,歌手,mv) -->
       <div class="searchresult" v-show="searchResultisShow">
         <div class="song">
-          <mt-cell title="单曲"></mt-cell>
+          <mt-cell title="单曲">
+            <img slot="icon" src="../assets/icon-music.png" width="20px" >
+          </mt-cell>
           <mt-cell v-for="(item,index) in searchResult.song.itemlist" :key="index"
             :title="item.name" 
             :label="item.singer"
@@ -50,7 +52,9 @@
            ></mt-cell>
         </div>
         <div class="album">
-          <mt-cell title="专辑"></mt-cell>
+          <mt-cell title="专辑">
+            <img slot="icon" src="../assets/icon-album.png" width="20px" >
+          </mt-cell>
            <mt-cell v-for="(item,index) in searchResult.album.itemlist" :key="index"
              :title="item.name"
            >
@@ -59,7 +63,9 @@
            </mt-cell>
         </div>
         <div class="singer">
-          <mt-cell title="歌手"></mt-cell>
+          <mt-cell title="歌手">
+            <img slot="icon" src="../assets/icon-singer.png" width="20px" >
+          </mt-cell>
           <mt-cell v-for="(item,index) in searchResult.singer.itemlist" :key="index"
             :title="item.name"
           >
@@ -67,7 +73,9 @@
           </mt-cell>
         </div>
         <div class="mv">
-          <mt-cell title="MV"></mt-cell>
+          <mt-cell title="MV">
+            <img slot="icon" src="../assets/icon-mv.png" width="20px" >
+          </mt-cell>
           <mt-cell v-for="(item,index) in searchResult.mv.itemlist" :key="index"
             :title="item.name"
             :label="item.singer"
