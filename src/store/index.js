@@ -7,7 +7,6 @@ export default new Vuex.Store({
   state: {
     searchValue:"",//当前搜索的值
     searchHistory:[],//搜索过的历史
-    searchResult:[]//暂定的搜索历史
   },
   mutations: {
   },
