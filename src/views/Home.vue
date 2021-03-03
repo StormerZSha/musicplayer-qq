@@ -49,7 +49,7 @@
             :title="item.name" 
             :label="item.singer"
             is-link
-            @click.native="addplaylist(item.mid,item.name)"
+            @click.native="addplaylist(item.mid,item.name,item.singer)"
            ></mt-cell>
         </div>
         <div class="album">
@@ -80,7 +80,8 @@
           <mt-cell v-for="(item,index) in searchResult.mv.itemlist" :key="index"
             :title="item.name"
             :label="item.singer"
-          ></mt-cell>
+          >
+          </mt-cell>
         </div>
       </div>
     </div>
@@ -95,21 +96,28 @@
         <div class="musicname">Music Player</div>
         <img src="../assets/icon-play.png" width="30px" class="icon-play">
       </div>
-      <mt-popup v-model="bigPlayerisShow" position="bottom" :moadl="false" closeOnClickModal=false>
+      <mt-popup v-model="bigPlayerisShow" position="bottom" :moadl="false" :closeOnClickModal=false>
          <div class="bigplayer">
            <span class="closebigplayer" @click="bigPlayerisShow=false">X</span>
            <img src="../assets/icon-defaultplayer.png"  class="bigalbumpic" >
            <div class="playerset">
-             <audio controls >
-               <source src="#">
+             <audio controls autoplay :src="playingurl" >
                您的浏览器不支持在线播放
              </audio>
            </div>
            <span @click="playListisShow=true">歌单测试</span>
-          <mt-popup v-model="playListisShow" position="bottom" :modal="false" closeOnClickModal=false>
+          <mt-popup v-model="playListisShow" position="bottom" :modal="false" >
             <div class="playlist">
-              这是歌单测试
-              <span @click="playListisShow=false">关闭歌单测试</span>
+              <span @click="playListisShow=false">关闭</span>
+              <mt-cell v-for="(item,index) in this.$store.state.playList" :key="index"
+                :title="item.name"
+                :label="item.singer"
+                @click.native="playsong(item.mid)"
+              >
+                 <mt-button icon="field-error" plain style="border:none"
+                  @click.native="removesong(index)"
+                 ></mt-button>
+              </mt-cell>
             </div>
           </mt-popup>
          </div>
@@ -148,6 +156,8 @@ export default {
       searchResultisShow:false,//搜索结果的显示隐藏
       bigPlayerisShow:false,//完整播放器的显示与隐藏
       playListisShow:false,//播放列表的显示与隐藏
+      actionSheetisShow:false,//播放列表详情上拉菜单的显示与隐藏
+      playingurl:"",//当前正在的音乐的url
     }
   },
   methods:{
@@ -202,8 +212,22 @@ export default {
     clearHistory(){
       this.$store.state.searchHistory=[];//存储搜索历史的数组清空
     },
-    addplaylist(mid,name){//调用全局方法,添加播放列表
-     this.$store.commit('addPlayList',{mid,name});
+    addplaylist(mid,name,singer){//调用全局方法,添加播放列表
+     this.$store.commit('addPlayList',{mid,name,singer});
+    },
+    removesong(index){//调用全局方法,删除当前的歌曲
+     this.$store.commit('removeSong',index);
+    },
+    playsong(mid){
+      let that=this;
+      axios({
+        url:'/song/urls?id='+mid
+      }).then(res=>{
+        console.log(res.data.data[mid]);
+        that.playingurl=res.data.data[mid];
+      }).catch(err=>{
+        console.log(err);
+      })
     }
   },
   created(){//页面创建时，调用获取热门搜索
@@ -286,5 +310,8 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
+}
+.mint-actionsheet-listitem{
+  background-color: #ccc;
 }
 </style>

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import {Toast} from 'mint-ui'
+import axios from 'axios'
 
 Vue.use(Vuex)
 
@@ -11,7 +12,7 @@ export default new Vuex.Store({
     playList:[],//播放列表
   },
   mutations: {
-    addPlayList(state,data){//添加歌曲mid,name到播放列表(mid可请求播放地址)
+    addPlayList(state,data){//添加歌曲mid,name,singer到播放列表(mid可请求播放地址)
       state.playList.push(data);
       Toast({
         message:"添加播放列表成功",
@@ -19,7 +20,11 @@ export default new Vuex.Store({
         duration:3000
       });
       console.log("添加成功");
-   }
+   },
+   removeSong(state,index){//点击按钮删除对应索引的歌
+     state.playList.splice(index,1);
+   },
+   
   },
   actions: {
   },
