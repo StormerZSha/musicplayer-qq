@@ -101,26 +101,31 @@
            <span class="closebigplayer" @click="bigPlayerisShow=false">X</span>
            <img src="../assets/icon-defaultplayer.png"  class="bigalbumpic" >
            <div class="playerset">
-             <audio controls  :src="playingurl"  class="audioclass" autoplay>
+             <audio :src="playingurl"  class="audioclass" autoplay>
                您的浏览器不支持在线播放
              </audio>
              <!-- 此处添加测试自定义进度条 -->
-             <img :src="iconurl" @click="startPlay">
-             <span>总时长{{musicduration}}</span>
              <mt-range :max="originMusicduration" :step="1" :value="originMusiccurrent"
              >
                <div slot="start">{{musiccurrent}}</div>
                <div slot="end">{{musicduration}}</div>
              </mt-range>
+             <h3 class="playingname">{{playingname}}</h3>
+             <h5 class="playingsinger">{{playingsinger}}</h5>
+             <div class="musiccontrol">
+                <img src="../assets/icon-slowrun.png" @click="slowRun" class="slowrun">
+                <img :src="iconurl" @click="startPlay">
+                <img src="../assets/icon-fastrun.png" @click="fastRun" class="fastrun">
+             </div>
+             <img src="../assets/icon-list.png" @click="playListisShow=true" class="listshow" >
            </div>
-           <span @click="playListisShow=true">歌单测试</span>
           <mt-popup v-model="playListisShow" position="bottom" :modal="false" >
             <div class="playlist">
               <span @click="playListisShow=false">关闭</span>
               <mt-cell v-for="(item,index) in this.$store.state.playList" :key="index"
                 :title="item.name"
                 :label="item.singer"
-                @click.native="playsong(item.mid)"
+                @click.native="playsong(item.mid,item.name,item.singer)"
               >
                  <mt-button icon="field-error" plain style="border:none"
                   @click.native="removesong(index)"
@@ -166,7 +171,9 @@ export default {
       bigPlayerisShow:false,//完整播放器的显示与隐藏
       playListisShow:false,//播放列表的显示与隐藏
       actionSheetisShow:false,//播放列表详情上拉菜单的显示与隐藏
-      playingurl:"",//当前正在的音乐的url
+      playingurl:"",//当前正在播放的音乐的url
+      playingname:"",//当前正在播放的音乐的名字
+      playingsinger:"",//当前正在播放的音乐的歌手
       iconurl:require("../assets/icon-play.png"),//图标
       musicduration:"",//音频总时长(分钟),用于显示
       musiccurrent:"",//音频当前位置(分钟),用于显示
@@ -232,13 +239,15 @@ export default {
     removesong(index){//调用全局方法,删除当前的歌曲
      this.$store.commit('removeSong',index);
     },
-    playsong(mid){//请求url进行播放
+    playsong(mid,name,singer){//请求url进行播放
       let that=this;
-      axios({
+      this.playingname=name;//提取歌名
+      this.playingsinger=singer;//提取歌手
+      axios({//提取url
         url:'/song/urls?id='+mid
       }).then(res=>{
         console.log(res.data.data[mid]);
-        that.playingurl=res.data.data[mid];//将音乐url赋值给播放器
+        that.playingurl=res.data.data[mid];
       }).catch(err=>{
         console.log(err);
         Toast({
@@ -276,6 +285,18 @@ export default {
         this.iconurl=require("../assets/icon-play.png");
       }
       },1000);
+    },
+    fastRun(){//快进按钮
+      let audio=document.querySelector(".audioclass");
+      if(audio.duration-audio.currentTime>15){//当前进度离播完如果大于15s
+         audio.currentTime+=15;//快进15s
+      }      
+    },
+    slowRun(){//后退按钮
+      let audio=document.querySelector(".audioclass");
+      if(audio.currentTime>=15){//当前进度大于15s
+        audio.currentTime-=15;
+      }
     },
     musicTimechange(time){//将音乐时长与当前进度转化成分钟制
       let duration=parseInt(time);
@@ -373,5 +394,50 @@ export default {
 }
 .mint-actionsheet-listitem{
   background-color: #ccc;
+}
+.playerset{
+  position: relative;
+}
+.playingname{
+  position: absolute;
+  left: 50%;
+  transfrom: translateX(-50%);
+  -webkit-transform:translateX(-50%);
+  -ms-transform: translateX(-50%);
+}
+.playingsinger{
+  position: absolute;
+  top: 55px;
+  left: 50%;
+  transfrom: translateX(-50%);
+  -webkit-transform:translateX(-50%);
+  -ms-transform: translateX(-50%);
+}
+.musiccontrol{
+  width: 100%;
+  margin-top: 57%;
+  margin-left: 37%;
+}
+.musiccontrol img{
+  width: 50px;
+  height: 50px;
+  margin-left: 15px;
+}
+.fastrun,.slowrun{
+  position: absolute;
+  top: 40px;
+}
+.slowrun{
+  left: -15px;
+}
+.fastrun{
+  right: 0;
+}
+.listshow{
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 50px;
+  height: 50px;
 }
 </style>
