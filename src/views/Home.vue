@@ -99,7 +99,7 @@
       <mt-popup v-model="bigPlayerisShow" position="bottom" :moadl="false" :closeOnClickModal=false>
          <div class="bigplayer">
            <span class="closebigplayer" @click="bigPlayerisShow=false">X</span>
-           <img src="../assets/icon-defaultplayer.png"  class="bigalbumpic" >
+           <img :src="playingablumpic?playingablumpic:defaultPlayerpic"  class="bigalbumpic" >
            <div class="playerset">
              <audio :src="playingurl"  class="audioclass" autoplay>
                您的浏览器不支持在线播放
@@ -125,7 +125,7 @@
               <mt-cell v-for="(item,index) in this.$store.state.playList" :key="index"
                 :title="item.name"
                 :label="item.singer"
-                @click.native="playsong(item.mid,item.name,item.singer)"
+                @click.native="playsong(item.mid,item.name,item.singer);getCover(item.mid)"
               >
                  <mt-button icon="field-error" plain style="border:none"
                   @click.native="removesong(index)"
@@ -178,7 +178,14 @@ export default {
       musicduration:"",//音频总时长(分钟),用于显示
       musiccurrent:"",//音频当前位置(分钟),用于显示
       originMusicduration:0,//原始音频总时长(秒),用于操作进度条
-      originMusiccurrent:0//原始音频当前位置(秒)，用于操作进度条
+      originMusiccurrent:0,//原始音频当前位置(秒)，用于操作进度条
+      songDetail:{//单独一首歌的详细信息
+        extras:{},
+        info:{},
+        track_info:{}
+      },
+      playingablumpic:"",//当前播放的专辑封面
+      defaultPlayerpic:require('../assets/icon-defaultplayer.png'),//播放器默认图片
     }
   },
   methods:{
@@ -256,7 +263,24 @@ export default {
           duration:3000
         })
       })
+
       this.startPlay();
+    },
+    getCover(mid){//请求封面url
+    let that=this;
+    axios({//第一层获得一首歌的详细信息
+      url:'/song?songmid='+mid
+    }).then(res=>{
+      console.log(res.data.data);
+      that.songDetail=res.data.data;
+      console.log(that.songDetail.track_info.album.mid);
+      axios({//第二层用详细信息里的专辑获得专辑封面
+        url:'/album?albummid='+that.songDetail.track_info.album.mid
+      }).then(res=>{
+        console.log(res.data.data.picUrl);
+        that.playingablumpic=res.data.data.picUrl;
+      })
+    })
     },
     startPlay(){//开始播放
       let audio=document.querySelector(".audioclass");
