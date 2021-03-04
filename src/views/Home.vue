@@ -107,6 +107,11 @@
              <!-- 此处添加测试自定义进度条 -->
              <img :src="iconurl" @click="startPlay">
              <span>总时长{{musicduration}}</span>
+             <mt-range :max="originMusicduration" :step="1" :value="originMusiccurrent"
+             >
+               <div slot="start">{{musiccurrent}}</div>
+               <div slot="end">{{musicduration}}</div>
+             </mt-range>
            </div>
            <span @click="playListisShow=true">歌单测试</span>
           <mt-popup v-model="playListisShow" position="bottom" :modal="false" >
@@ -135,7 +140,8 @@ import {Search,
         Cell,
         Button,
         Popup,
-        Actionsheet
+        Actionsheet,
+        Range
 } from 'mint-ui';
 import axios from 'axios';
 import vueAxios from 'vue-axios';
@@ -162,8 +168,10 @@ export default {
       actionSheetisShow:false,//播放列表详情上拉菜单的显示与隐藏
       playingurl:"",//当前正在的音乐的url
       iconurl:require("../assets/icon-play.png"),//图标
-      musicduration:""//音频总时长
-      
+      musicduration:"",//音频总时长(分钟),用于显示
+      musiccurrent:"",//音频当前位置(分钟),用于显示
+      originMusicduration:0,//原始音频总时长(秒),用于操作进度条
+      originMusiccurrent:0//原始音频当前位置(秒)，用于操作进度条
     }
   },
   methods:{
@@ -173,7 +181,7 @@ export default {
         url:'/search/hot'
       }).then(res=>{
         console.log(res.data.data.slice(0,5));
-        that.hotSearchValue=res.data.data.slice(0,5);
+        that.hotSearchValue=res.data.data.slice(0,5);//截取前5个赋值显示
       }).catch(err=>{
         console.log(err);
       })
@@ -230,7 +238,7 @@ export default {
         url:'/song/urls?id='+mid
       }).then(res=>{
         console.log(res.data.data[mid]);
-        that.playingurl=res.data.data[mid];
+        that.playingurl=res.data.data[mid];//将音乐url赋值给播放器
       }).catch(err=>{
         console.log(err);
         Toast({
@@ -239,21 +247,48 @@ export default {
           duration:3000
         })
       })
-      this.iconurl=require("../assets/icon-pause.png");
+      this.startPlay();
     },
     startPlay(){//开始播放
-      var audio=document.querySelector(".audioclass");
-      if(audio.paused){
-        audio.play();
-        this.iconurl=require("../assets/icon-pause.png");
-        this.musicduration=audio.duration;
+      let audio=document.querySelector(".audioclass");
+      if(audio.paused){//如果播放器时暂停状态
+        audio.play();//开始播放
+        this.iconurl=require("../assets/icon-pause.png");//按钮改为暂停键
+        this.originMusicduration=parseInt(audio.duration);//得出总时长
+        this.musicduration=this.musicTimechange(audio.duration);
         console.log("播放成功");
-      }else{
-        audio.pause();
-        this.iconurl=require("../assets/icon-play.png");
+      }else{//如果播放器在播放
+        audio.pause();//暂停
+        this.iconurl=require("../assets/icon-play.png");//按钮改为开始键
         console.log("暂停成功");
       }
-    }
+      audio.ondurationchange=()=>{//音频总时长变化时刷新数据
+        this.originMusicduration=parseInt(audio.duration);
+        this.musicduration=this.musicTimechange(audio.duration);
+      }
+     // if(timer){clearInterval(timer);}
+      let timer=setInterval(()=>{//设置定时器,每一秒记录下当前进度
+       this.originMusiccurrent=parseInt(audio.currentTime); 
+       this.musiccurrent=this.musicTimechange(audio.currentTime) ;
+      // console.log(this.musicTimechange(audio.currentTime));
+      if(audio.currentTime==audio.duration){//播放完成时清除定时器,按钮重新变成开始键
+        clearInterval(timer);
+        this.iconurl=require("../assets/icon-play.png");
+      }
+      },1000);
+    },
+    musicTimechange(time){//将音乐时长与当前进度转化成分钟制
+      let duration=parseInt(time);
+      let minutes=parseInt(duration/60);
+      let seconds=duration%60;
+      if(seconds<=9){
+        seconds="0"+seconds;
+      }
+      if(minutes<=9){
+        minutes="0"+minutes;
+      }
+      return minutes+":"+seconds;
+    },
   },
   created(){//页面创建时，调用获取热门搜索
     this.gethotsearch();
