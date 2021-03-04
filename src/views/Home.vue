@@ -101,9 +101,12 @@
            <span class="closebigplayer" @click="bigPlayerisShow=false">X</span>
            <img src="../assets/icon-defaultplayer.png"  class="bigalbumpic" >
            <div class="playerset">
-             <audio controls autoplay :src="playingurl" >
+             <audio controls  :src="playingurl"  class="audioclass" autoplay>
                您的浏览器不支持在线播放
              </audio>
+             <!-- 此处添加测试自定义进度条 -->
+             <img :src="iconurl" @click="startPlay">
+             <span>总时长{{musicduration}}</span>
            </div>
            <span @click="playListisShow=true">歌单测试</span>
           <mt-popup v-model="playListisShow" position="bottom" :modal="false" >
@@ -158,6 +161,9 @@ export default {
       playListisShow:false,//播放列表的显示与隐藏
       actionSheetisShow:false,//播放列表详情上拉菜单的显示与隐藏
       playingurl:"",//当前正在的音乐的url
+      iconurl:require("../assets/icon-play.png"),//图标
+      musicduration:""//音频总时长
+      
     }
   },
   methods:{
@@ -218,7 +224,7 @@ export default {
     removesong(index){//调用全局方法,删除当前的歌曲
      this.$store.commit('removeSong',index);
     },
-    playsong(mid){
+    playsong(mid){//请求url进行播放
       let that=this;
       axios({
         url:'/song/urls?id='+mid
@@ -227,7 +233,26 @@ export default {
         that.playingurl=res.data.data[mid];
       }).catch(err=>{
         console.log(err);
+        Toast({
+          message:"音乐暂时无法播放",
+          position:"middle",
+          duration:3000
+        })
       })
+      this.iconurl=require("../assets/icon-pause.png");
+    },
+    startPlay(){//开始播放
+      var audio=document.querySelector(".audioclass");
+      if(audio.paused){
+        audio.play();
+        this.iconurl=require("../assets/icon-pause.png");
+        this.musicduration=audio.duration;
+        console.log("播放成功");
+      }else{
+        audio.pause();
+        this.iconurl=require("../assets/icon-play.png");
+        console.log("暂停成功");
+      }
     }
   },
   created(){//页面创建时，调用获取热门搜索
