@@ -94,11 +94,11 @@
       <div class="minplayer" @click="bigPlayerisShow=true">
         <img :src="playingablumpic?playingablumpic:defaultPlayerpic"  width="50px" class="albumpic">
         <div class="musicname">{{playingname?playingname:defaultPlayername}}</div>
-        <img :src="iconurl" width="30px" class="icon-play" @click="startPlay">
+        <img :src="iconurl" width="30px" class="icon-play" @click.stop="startPlay">
       </div>
       <mt-popup v-model="bigPlayerisShow" position="bottom" :moadl="false" :closeOnClickModal=false>
          <div class="bigplayer">
-           <span class="closebigplayer" @click="bigPlayerisShow=false">X</span>
+           <div class="closebigplayer" @click="bigPlayerisShow=false">X</div>
            <img :src="playingablumpic?playingablumpic:defaultPlayerpic"  class="bigalbumpic" >
            <div class="playerset">
              <audio :src="playingurl"  class="audioclass" autoplay>
@@ -112,6 +112,14 @@
              </mt-range>
              <h3 class="playingname">{{playingname?playingname:defaultPlayername}}</h3>
              <h5 class="playingsinger">{{playingsinger}}</h5>
+             <div class="playinglyric">
+               <ul>
+                 <li v-for="(item,index) in playinglyric" :key="index"
+                     :class="originMusiccurrent-item.time>=0&&originMusiccurrent-item.time<=5?'playing':''"
+                     v-show="originMusiccurrent-item.time>=0&&originMusiccurrent-item.time<=5"
+                 >{{item.lyr}}</li>
+               </ul>
+             </div>
              <div class="musiccontrol">
                 <img src="../assets/icon-forward.png" @click="forwardSong(playingindex)">
                 <img src="../assets/icon-slowrun.png" @click="slowRun" id="slowrun">
@@ -123,7 +131,9 @@
            </div>
           <mt-popup v-model="playListisShow" position="bottom" :modal="false" >
             <div class="playlist">
-              <span @click="playListisShow=false">关闭</span>
+              <mt-cell :title="'共'+$store.state.playList.length+'首歌'">
+                <span @click="playListisShow=false">关闭</span>
+              </mt-cell>
               <mt-cell v-for="(item,index) in this.$store.state.playList" :key="index"
                 :title="item.name"
                 :label="item.singer"
@@ -189,7 +199,8 @@ export default {
       playingablumpic:"",//当前播放的专辑封面
       defaultPlayerpic:require('../assets/icon-defaultplayer.png'),//播放器默认图片,
       defaultPlayername:"Music Player",//播放器默认名字
-      playingindex:""//当前正在播放的音乐在列表中的索引
+      playingindex:"",//当前正在播放的音乐在列表中的索引
+      playinglyric:[],//当前播放的音乐的歌词对象数组
     }
   },
   methods:{
@@ -247,7 +258,7 @@ export default {
     addplaylist(mid,name,singer){//调用全局方法,添加播放列表
      this.$store.commit('addPlayList',{mid,name,singer});
     },
-    removesong(index){//调用全局方法,删除当前的歌曲
+    removesong(event,index){//调用全局方法,删除当前的歌曲
      this.$store.commit('removeSong',index);
     },
     playsong(mid,name,singer,index){//请求url进行播放
@@ -266,8 +277,24 @@ export default {
           position:"middle",
           duration:3000
         })
-      })
-      this.startPlay();
+      });
+      axios({//请求歌词
+        url:'/lyric?songmid='+mid
+      }).then(res=>{
+        //console.log(res.data.data.lyric);
+        let firststep=(res.data.data.lyric||"").split(/\n/);
+        let secondstep=firststep.splice(6);
+        //console.log(secondstep);
+        that.playinglyric=[];//清空之前的记录
+        for(let item of secondstep){//将处理后的歌词保存起来
+          that.playinglyric.push({
+            time:parseInt(item.slice(0,10).slice(1,6).slice(0,2))*60+parseInt(item.slice(0,10).slice(1,6).slice(3,5)),
+            lyr:item.slice(10)});
+        }
+      }).catch(err=>{
+        console.log(err);
+      });
+      this.startPlay(index);
       console.log(index);//当前播放这首歌在播放列表的索引
       this.playingindex=index;
     },
@@ -315,9 +342,9 @@ export default {
       })
     })
     },
-    startPlay(event){//开始播放
-      if(event){event.stopPropagation();}//阻止mini播放器的播放事件冒泡 
+    startPlay(event,index){//开始播放
       let audio=document.querySelector(".audioclass");
+      let lyricul=document.querySelector('.playinglyric>ul');
       if(audio.paused){//如果播放器时暂停状态
         audio.play();//开始播放
         this.iconurl=require("../assets/icon-pause.png");//按钮改为暂停键
@@ -334,13 +361,15 @@ export default {
         this.musicduration=this.musicTimechange(audio.duration);
       }
      // if(timer){clearInterval(timer);}
+      let that=this;
       let timer=setInterval(()=>{//设置定时器,每一秒记录下当前进度
        this.originMusiccurrent=parseInt(audio.currentTime); 
-       this.musiccurrent=this.musicTimechange(audio.currentTime) ;
+       this.musiccurrent=this.musicTimechange(audio.currentTime);
       // console.log(this.musicTimechange(audio.currentTime));
       if(audio.currentTime==audio.duration){//播放完成时清除定时器,按钮重新变成开始键
         clearInterval(timer);
         this.iconurl=require("../assets/icon-play.png");
+        that.nextSong(that.playingindex);
       }
       },1000);
     },
@@ -446,9 +475,14 @@ export default {
   position: relative;
 }
 .closebigplayer{
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #000;
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 15px;
+  left: 15px;
 }
 .mint-actionsheet-listitem{
   background-color: #ccc;
@@ -473,7 +507,7 @@ export default {
 }
 .musiccontrol{
   width: 100%;
-  margin-top: 57%;
+  margin-top: 2%;
   margin-left: 25%;
 }
 .musiccontrol img{
@@ -499,5 +533,22 @@ export default {
   right: 0;
   width: 50px;
   height: 50px;
+}
+.playinglyric{
+  width: 70%;
+  height: 170px;
+  margin-top: 55px;
+  margin-left: 65px;
+  text-align: center;
+  overflow: hidden;
+  position: relative;
+}
+.playinglyric ul{
+  position: absolute;
+  top: 15px;
+}
+.playing{
+  color: #f00;
+  font-size: 25px;
 }
 </style>
