@@ -92,9 +92,9 @@
     <div class="musicplayer">
       <!-- 迷你播放器 -->
       <div class="minplayer" @click="bigPlayerisShow=true">
-        <img src="../assets/icon-defaultplayer.png"  width="50px" class="albumpic">
-        <div class="musicname">Music Player</div>
-        <img src="../assets/icon-play.png" width="30px" class="icon-play">
+        <img :src="playingablumpic?playingablumpic:defaultPlayerpic"  width="50px" class="albumpic">
+        <div class="musicname">{{playingname?playingname:defaultPlayername}}</div>
+        <img :src="iconurl" width="30px" class="icon-play" @click="startPlay">
       </div>
       <mt-popup v-model="bigPlayerisShow" position="bottom" :moadl="false" :closeOnClickModal=false>
          <div class="bigplayer">
@@ -104,18 +104,20 @@
              <audio :src="playingurl"  class="audioclass" autoplay>
                您的浏览器不支持在线播放
              </audio>
-             <!-- 此处添加测试自定义进度条 -->
+             <!-- 此处添加自定义进度条 -->
              <mt-range :max="originMusicduration" :step="1" :value="originMusiccurrent"
              >
                <div slot="start">{{musiccurrent}}</div>
                <div slot="end">{{musicduration}}</div>
              </mt-range>
-             <h3 class="playingname">{{playingname}}</h3>
+             <h3 class="playingname">{{playingname?playingname:defaultPlayername}}</h3>
              <h5 class="playingsinger">{{playingsinger}}</h5>
              <div class="musiccontrol">
-                <img src="../assets/icon-slowrun.png" @click="slowRun" class="slowrun">
+                <img src="../assets/icon-forward.png" @click="forwardSong(playingindex)">
+                <img src="../assets/icon-slowrun.png" @click="slowRun" id="slowrun">
                 <img :src="iconurl" @click="startPlay">
-                <img src="../assets/icon-fastrun.png" @click="fastRun" class="fastrun">
+                <img src="../assets/icon-fastrun.png" @click="fastRun" id="fastrun">
+                <img src="../assets/icon-next.png" @click="nextSong(playingindex)">
              </div>
              <img src="../assets/icon-list.png" @click="playListisShow=true" class="listshow" >
            </div>
@@ -125,7 +127,7 @@
               <mt-cell v-for="(item,index) in this.$store.state.playList" :key="index"
                 :title="item.name"
                 :label="item.singer"
-                @click.native="playsong(item.mid,item.name,item.singer);getCover(item.mid)"
+                @click.native="playsong(item.mid,item.name,item.singer,index);getCover(item.mid)"
               >
                  <mt-button icon="field-error" plain style="border:none"
                   @click.native="removesong(index)"
@@ -174,7 +176,7 @@ export default {
       playingurl:"",//当前正在播放的音乐的url
       playingname:"",//当前正在播放的音乐的名字
       playingsinger:"",//当前正在播放的音乐的歌手
-      iconurl:require("../assets/icon-play.png"),//图标
+      iconurl:require("../assets/icon-play.png"),//播放键图标
       musicduration:"",//音频总时长(分钟),用于显示
       musiccurrent:"",//音频当前位置(分钟),用于显示
       originMusicduration:0,//原始音频总时长(秒),用于操作进度条
@@ -185,7 +187,9 @@ export default {
         track_info:{}
       },
       playingablumpic:"",//当前播放的专辑封面
-      defaultPlayerpic:require('../assets/icon-defaultplayer.png'),//播放器默认图片
+      defaultPlayerpic:require('../assets/icon-defaultplayer.png'),//播放器默认图片,
+      defaultPlayername:"Music Player",//播放器默认名字
+      playingindex:""//当前正在播放的音乐在列表中的索引
     }
   },
   methods:{
@@ -246,7 +250,7 @@ export default {
     removesong(index){//调用全局方法,删除当前的歌曲
      this.$store.commit('removeSong',index);
     },
-    playsong(mid,name,singer){//请求url进行播放
+    playsong(mid,name,singer,index){//请求url进行播放
       let that=this;
       this.playingname=name;//提取歌名
       this.playingsinger=singer;//提取歌手
@@ -263,8 +267,37 @@ export default {
           duration:3000
         })
       })
-
       this.startPlay();
+      console.log(index);//当前播放这首歌在播放列表的索引
+      this.playingindex=index;
+    },
+    nextSong(index){//切换到下一首歌
+      let nextindex;
+      if(index==this.$store.state.playList.length-1){//是最后一首歌时
+         nextindex=0;//变为第一首
+      }else{
+         nextindex=index+1;
+      }
+      let nextmid=this.$store.state.playList[nextindex].mid;//获取下一首歌的信息
+      let nextname=this.$store.state.playList[nextindex].name;
+      let nextsinger=this.$store.state.playList[nextindex].singer;
+      this.playsong(nextmid,nextname,nextsinger,nextindex);
+      this.getCover(nextmid);
+      this.iconurl=require("../assets/icon-pause.png");
+    },
+    forwardSong(index){//切换到上一首歌
+      let forwardindex;
+      if(index==0){//时第一首歌
+        forwardindex=this.$store.state.playList.length-1;
+      }else{
+        forwardindex=index-1;
+      }
+      let forwardmid=this.$store.state.playList[forwardindex].mid;//获取上一首歌的信息
+      let forwardname=this.$store.state.playList[forwardindex].name;
+      let forwardsinger=this.$store.state.playList[forwardindex].singer;
+      this.playsong(forwardmid,forwardname,forwardsinger,forwardindex);
+      this.getCover(forwardmid);
+      this.iconurl=require("../assets/icon-pause.png");
     },
     getCover(mid){//请求封面url
     let that=this;
@@ -282,7 +315,8 @@ export default {
       })
     })
     },
-    startPlay(){//开始播放
+    startPlay(event){//开始播放
+      if(event){event.stopPropagation();}//阻止mini播放器的播放事件冒泡 
       let audio=document.querySelector(".audioclass");
       if(audio.paused){//如果播放器时暂停状态
         audio.play();//开始播放
@@ -440,22 +474,24 @@ export default {
 .musiccontrol{
   width: 100%;
   margin-top: 57%;
-  margin-left: 37%;
+  margin-left: 25%;
 }
 .musiccontrol img{
   width: 50px;
   height: 50px;
   margin-left: 15px;
 }
-.fastrun,.slowrun{
+#fastrun,#slowrun{
   position: absolute;
-  top: 40px;
+  top: 25px;
+  width: 20px;
+  height: 20px;
 }
-.slowrun{
-  left: -15px;
+#slowrun{
+  left: -5px;
 }
-.fastrun{
-  right: 0;
+#fastrun{
+  right: 10px;
 }
 .listshow{
   position: absolute;
