@@ -7,6 +7,8 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    allSearchisShow:true,//整个搜索相关的显示与隐藏
+    allTabbarisShow:true,//整个选项卡的显示与隐藏
     searchValue:"",//当前搜索的值
     searchHistory:[],//搜索过的历史
     playList:[],//播放列表

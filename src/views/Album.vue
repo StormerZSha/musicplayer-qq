@@ -1,7 +1,8 @@
 <template>
     <div class="album">
         <div class="backtitle">
-            <div class="icon" @click="$router.go(-1)">
+            <div class="icon" 
+            @click="$router.go(-1);$store.state.allSearchisShow=true">
                 <img src="../assets/icon-back.png">
             </div>
             <div class="text">
@@ -26,7 +27,8 @@
             >
             </mt-cell>
         </div>
-    </div>
+        
+    </div>  
 </template>
 <script>
 
@@ -34,8 +36,13 @@ import {Cell,
 } from 'mint-ui';
 import axios from 'axios';
 import vueAxios from 'vue-axios';
+import player from '../components/Player'
+import Player from '../components/Player.vue';
 export default {
     name: 'Album',
+    components:{
+      player
+    },
     data(){
         return {
             albummid:"",//记录专辑id
@@ -89,6 +96,10 @@ export default {
 }
 </script>
 <style scoped>
+.album{
+    width: 100%;
+    position: absolute;
+}
 .backtitle{
     width: 100%;
     height: 49px;
@@ -111,7 +122,7 @@ export default {
     width: 100%;
     height: 130px;
     background-color: rgba(0, 0,0,.1);
-    padding: 20px;
+    padding-top: 20px;
 }
 .cover,.msg{
     float: left;
@@ -131,4 +142,5 @@ export default {
 .mint-cell{
     background-color: rgba(0, 0,0,.1);
 }
+
 </style>

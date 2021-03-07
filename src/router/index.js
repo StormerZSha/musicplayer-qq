@@ -10,12 +10,19 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
+    meta:{
+      title:'首页',
+      keepAlive:true
+    },
+    children:[
+      {
+        path:'/album/:id',
+        name:'Album',
+        component:Album
+      }
+    ]
   },
-  {
-    path:'/album/:id',
-    name:'Album',
-    component:Album
-  }
+  
 ]
 
 const router = new VueRouter({
