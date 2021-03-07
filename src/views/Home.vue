@@ -59,8 +59,11 @@
            <mt-cell v-for="(item,index) in searchResult.album.itemlist" :key="index"
              :title="item.name" 
            >
-             <img slot="icon" :src="item.pic" width="40px" height="40px">
              {{item.singer}}
+             <router-link :to="'/album/'+item.mid" tag="img" 
+             :src="item.pic" width="40px" height="40px" slot="icon">
+             </router-link>
+             <!-- 将专辑图片作为路由跳转按钮 -->
            </mt-cell>
         </div>
         <div class="singer">
@@ -85,8 +88,26 @@
         </div>
       </div>
     </div>
-    <!-- 搜索与播放中间部分暂定 -->
+    <!-- 推荐与排行选项卡 -->
     <div class="tabbar">
+      <mt-navbar v-model="selected">
+        <mt-tab-item id="recommend">推荐</mt-tab-item>
+        <mt-tab-item id="rank">排行</mt-tab-item>
+      </mt-navbar>
+      <mt-tab-container v-model="selected" :swipeable="true">
+        <!-- 这是推荐选项卡 -->
+        <mt-tab-container-item id="recommend">
+          <div class="banner" @touchmove.stop="()=>{return true}">
+             <mt-swipe :auto="5000">
+                <mt-swipe-item v-for="(item,index) in bannerMessage" :key="index">
+                  <img :src="item.picUrl">
+                  <router-link :to="'/album/'+item.h5Url.slice(-8)" v-if="item.h5Url">专辑</router-link>
+                </mt-swipe-item>
+          </mt-swipe>
+          </div>
+          </mt-tab-container-item>
+        <mt-tab-container-item id="rank">这是排行选项卡</mt-tab-container-item>
+      </mt-tab-container>
     </div>
     <!-- 音乐播放器 -->
     <div class="musicplayer">
@@ -158,7 +179,13 @@ import {Search,
         Button,
         Popup,
         Actionsheet,
-        Range
+        Range,
+        Navbar,
+        TabItem,
+        TabContainer,
+        TabContainerItem,
+        Swipe,
+        SwipeItem
 } from 'mint-ui';
 import axios from 'axios';
 import vueAxios from 'vue-axios';
@@ -201,6 +228,8 @@ export default {
       defaultPlayername:"Music Player",//播放器默认名字
       playingindex:"",//当前正在播放的音乐在列表中的索引
       playinglyric:[],//当前播放的音乐的歌词对象数组
+      selected:"recommend",//当前选项卡选中的值
+      bannerMessage:[],//获取到的轮播图信息
     }
   },
   methods:{
@@ -397,9 +426,21 @@ export default {
       }
       return minutes+":"+seconds;
     },
+    getBanner(){//获取首页轮播图信息
+      let that=this;
+      axios({
+        url:'/recommend/banner'
+      }).then(res=>{
+        console.log(res);
+        that.bannerMessage=res.data.data;
+      }).catch(err=>{
+        console.log(err);
+      })
+    }
   },
-  created(){//页面创建时，调用获取热门搜索
+  created(){//页面创建时,调用获取热门搜索,获取轮播图信息
     this.gethotsearch();
+    this.getBanner();
   }
 }
 </script>
@@ -534,6 +575,11 @@ export default {
   width: 50px;
   height: 50px;
 }
+.playlist{
+  width: 100%;
+  height: 100%;
+  overflow: scroll;
+}
 .playinglyric{
   width: 70%;
   height: 170px;
@@ -550,5 +596,13 @@ export default {
 .playing{
   color: #f00;
   font-size: 25px;
+}
+.banner{
+  width: 100%;
+  height: 200px;
+  background-color: #ccc;
+}
+.banner img{
+  width: 100%;
 }
 </style>
