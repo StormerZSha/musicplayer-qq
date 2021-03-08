@@ -24,6 +24,7 @@
             <mt-cell v-for="(item,index) in albumsong" :key="index"
               :title="item.name"
               :label="item.singer[0].name"
+              @click.native="addplaylist(item.mid,item.name,item.singer[0].name)"
             >
             </mt-cell>
         </div>
@@ -37,7 +38,6 @@ import {Cell,
 import axios from 'axios';
 import vueAxios from 'vue-axios';
 import player from '../components/Player'
-import Player from '../components/Player.vue';
 export default {
     name: 'Album',
     components:{
@@ -85,7 +85,10 @@ export default {
             }).catch(err=>{
                 console.log(err);
             })
-        }
+        },
+        addplaylist(mid,name,singer){//调用全局方法,添加播放列表
+          this.$store.commit('addPlayList',{mid,name,singer});
+        },
     },
     created(){
         this.getAlbumid();

@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
-import Album from '../views/Album.vue'
 
+const Home=()=>import('../views/Home.vue');
+const Album=()=>import('../views/Album.vue');
+const Singer=()=>import('../views/Singer.vue');
 Vue.use(VueRouter)
 
 const routes = [
@@ -19,6 +20,11 @@ const routes = [
         path:'/album/:id',
         name:'Album',
         component:Album
+      },
+      {
+        path:'/singer',
+        name:'Singer',
+        component:Singer
       }
     ]
   },

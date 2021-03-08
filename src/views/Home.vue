@@ -75,7 +75,12 @@
           <mt-cell v-for="(item,index) in searchResult.singer.itemlist" :key="index"
             :title="item.name"
           >
-            <img slot="icon" :src="item.pic" width="40px" height="40px" style="border-radius:50%">
+             <router-link :to="{path:'/singer',query:{id:item.mid,url:item.pic}}" tag="img"
+             :src="item.pic" width="40px" height="40px" slot="icon"
+             style="border-radius:50%"
+             @click.native="$store.state.allTabbarisShow=false;$store.state.allSearchisShow=false"
+             >
+             </router-link>
           </mt-cell>
         </div>
         <div class="mv">
@@ -103,9 +108,12 @@
              <mt-swipe :auto="5000">
                 <mt-swipe-item v-for="(item,index) in bannerMessage" :key="index">
                   <img :src="item.picUrl">
-                  <router-link :to="'/album/'+item.h5Url.slice(-8)" v-if="item.h5Url">专辑</router-link>
+                  <a :href="item.h5Url" v-show="item.type=='10002'">付费专辑请至官网收听</a>
                 </mt-swipe-item>
-          </mt-swipe>
+             </mt-swipe>
+          </div>
+          <div class="recommendlist">
+
           </div>
           </mt-tab-container-item>
         <mt-tab-container-item id="rank">这是排行选项卡</mt-tab-container-item>
@@ -230,7 +238,7 @@ export default {
       }).catch(err=>{
         console.log(err);
       })
-    },
+    },  
   },
   created(){//页面创建时,调用获取热门搜索,获取轮播图信息
     this.gethotsearch();
