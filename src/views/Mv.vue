@@ -53,7 +53,7 @@ export default {
             axios({
                 url:'/mv/url?id='+this.$route.params.id
             }).then(res=>{
-                console.log(res);
+               // console.log(res);
                 that.mvUrl=res.data.data[this.$route.params.id];
             }).catch(err=>{
                 console.log(err);
@@ -64,7 +64,7 @@ export default {
             axios({
                 url:'/mv?id='+this.$route.params.id
             }).then(res=>{
-                console.log(res);
+               // console.log(res);
                 that.mvMsg.name=res.data.data.info.name;
                 that.mvMsg.singer=
                 res.data.data.info.singers[1]?res.data.data.info.singers[0].name+"/"+res.data.data.info.singers[1].name:res.data.data.info.singers[0].name;

@@ -267,7 +267,7 @@ export default {
       axios({
         url:'/search/hot'
       }).then(res=>{
-        console.log(res.data.data.slice(0,5));
+        //console.log(res.data.data.slice(0,5));
         that.hotSearchValue=res.data.data.slice(0,5);//截取前5个赋值显示
       }).catch(err=>{
         console.log(err);
@@ -278,7 +278,7 @@ export default {
       axios({
         url:'/search/quick?key='+that.$store.state.searchValue
       }).then(res=>{
-        console.log(res.data.data);
+        //console.log(res.data.data);
         that.searchResult=res.data.data;
       }).catch(err=>{
         console.log(err);
@@ -306,7 +306,7 @@ export default {
     realHotsearch(key){//用热门搜索关键词真正搜索
       this.$store.state.searchValue=key;//将热门搜索关键词放入搜索框
       this.quicksearch();//调用快速搜索
-      console.log(key);
+      //console.log(key);
     },
     historySearch(key){//用历史搜索关键词搜索
      this.$store.state.searchValue=key;
@@ -326,7 +326,7 @@ export default {
       axios({
         url:'/recommend/banner'
       }).then(res=>{
-        console.log(res);
+        //console.log(res);
         that.bannerMessage=res.data.data;
       }).catch(err=>{
         console.log(err);
@@ -337,7 +337,7 @@ export default {
         axios({
         url:'/recommend/playlist/u'
       }).then(res=>{
-        console.log(res);
+        //console.log(res);
         that.recommendList=res.data.data.list;
       }).catch(err=>{
         console.log(err);
@@ -348,7 +348,7 @@ export default {
        axios({
          url:'/top/category?showDetail=1'
        }).then(res=>{
-         console.log(res);
+        // console.log(res);
          that.topRankmsg=res.data.data[0].list;
          that.areaRankmsg=res.data.data[1].list;
          that.specialRankmsg=res.data.data[2].list;

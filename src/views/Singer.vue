@@ -53,7 +53,7 @@ export default {
             axios({
                 url:'/singer/desc?singermid='+this.$route.query.id
             }).then(res=>{
-                console.log(res);
+                //console.log(res);
                 that.singerName=res.data.data.singername;
                 that.singerDesc=res.data.data.desc;
             }).catch(err=>{
@@ -64,7 +64,7 @@ export default {
             axios({
                 url:'/singer/songs?singermid='+this.$route.query.id
             }).then(res=>{
-                console.log(res);
+                //console.log(res);
                 this.singerHotsong=res.data.data.list;
             }).catch(err=>{
                 console.log(err);

@@ -79,7 +79,7 @@ export default {
             axios({
                 url:'/album/songs?albummid='+this.$route.params.id
             }).then(res=>{
-                console.log(res);
+                //console.log(res);
                 this.albumsong=res.data.data.list;
                 this.albumcount=res.data.data.list.length;
             }).catch(err=>{

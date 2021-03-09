@@ -103,7 +103,7 @@ export default {
       axios({//提取url
         url:'/song/urls?id='+mid
       }).then(res=>{
-        console.log(res.data.data[mid]);
+       // console.log(res.data.data[mid]);
         that.playingurl=res.data.data[mid];
       }).catch(err=>{
         console.log(err);
@@ -130,7 +130,7 @@ export default {
         console.log(err);
       });
       this.startPlay(index);
-      console.log(index);//当前播放这首歌在播放列表的索引
+     // console.log(index);//当前播放这首歌在播放列表的索引
       this.playingindex=index;
     },
     nextSong(index){//切换到下一首歌
@@ -166,13 +166,13 @@ export default {
     axios({//第一层获得一首歌的详细信息
       url:'/song?songmid='+mid
     }).then(res=>{
-      console.log(res.data.data);
+     // console.log(res.data.data);
       that.songDetail=res.data.data;
-      console.log(that.songDetail.track_info.album.mid);
+      //console.log(that.songDetail.track_info.album.mid);
       axios({//第二层用详细信息里的专辑获得专辑封面
         url:'/album?albummid='+that.songDetail.track_info.album.mid
       }).then(res=>{
-        console.log(res.data.data.picUrl);
+       // console.log(res.data.data.picUrl);
         that.playingablumpic=res.data.data.picUrl;
       })
     })

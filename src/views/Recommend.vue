@@ -53,7 +53,7 @@ export default {
           axios({
               url:'/songlist?id='+this.$route.params.id
           }).then(res=>{
-              console.log(res);
+             // console.log(res);
               that.songList.logo=res.data.data.logo;//歌单图片
               that.songList.name=res.data.data.dissname;//歌单名字
               that.songList.tags=res.data.data.tags;//歌单标签

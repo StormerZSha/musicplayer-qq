@@ -45,7 +45,7 @@ export default {
             axios({
                 url:"/top?id="+this.$route.params.id
             }).then(res=>{
-                console.log(res);
+                //console.log(res);
                 that.info=res.data.data.info;
                 that.list=res.data.data.list;
             }).catch(err=>{
