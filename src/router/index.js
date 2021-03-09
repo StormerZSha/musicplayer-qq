@@ -4,6 +4,7 @@ import VueRouter from 'vue-router'
 const Home=()=>import('../views/Home.vue');
 const Album=()=>import('../views/Album.vue');
 const Singer=()=>import('../views/Singer.vue');
+const Mv=()=>import('../views/Mv.vue');
 Vue.use(VueRouter)
 
 const routes = [
@@ -25,6 +26,11 @@ const routes = [
         path:'/singer',
         name:'Singer',
         component:Singer
+      },
+      {
+        path:'/mv/:id',
+        name:'Mv',
+        component:Mv
       }
     ]
   },

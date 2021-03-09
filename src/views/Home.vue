@@ -90,6 +90,7 @@
           <mt-cell v-for="(item,index) in searchResult.mv.itemlist" :key="index"
             :title="item.name"
             :label="item.singer"
+            @click.native="$router.push('/mv/'+item.vid);$store.state.allTabbarisShow=false;$store.state.allSearchisShow=false"
           >
           </mt-cell>
         </div>
