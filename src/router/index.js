@@ -5,6 +5,7 @@ const Home=()=>import('../views/Home.vue');
 const Album=()=>import('../views/Album.vue');
 const Singer=()=>import('../views/Singer.vue');
 const Mv=()=>import('../views/Mv.vue');
+const Recommend=()=>import('../views/Recommend.vue');
 Vue.use(VueRouter)
 
 const routes = [
@@ -31,6 +32,11 @@ const routes = [
         path:'/mv/:id',
         name:'Mv',
         component:Mv
+      },
+      {
+        path:'/recommend/:id',
+        name:'Recommend',
+        component:Recommend
       }
     ]
   },

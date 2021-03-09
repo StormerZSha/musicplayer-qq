@@ -114,7 +114,16 @@
              </mt-swipe>
           </div>
           <div class="recommendlist">
-
+              <div class="recommedtitle"><h4>热门歌单</h4></div>
+              <div class="recommendinner" v-for="(item,index) in recommendList" :key="index"
+                @click="$router.push('/recommend/'+item.content_id);$store.state.allTabbarisShow=false;$store.state.allSearchisShow=false"
+              >
+                 <div class="img">
+                   <img :src="item.cover">
+                 </div>
+                 <div class="name">{{item.title}}</div>
+                 <div class="listennum">热度:{{item.listen_num}}</div>
+              </div>
           </div>
           </mt-tab-container-item>
         <mt-tab-container-item id="rank">这是排行选项卡</mt-tab-container-item>
@@ -167,6 +176,7 @@ export default {
       searchResultisShow:false,//搜索结果的显示隐藏
       selected:"recommend",//当前选项卡选中的值
       bannerMessage:[],//获取到的轮播图信息
+      recommendList:[],//获取到的推荐列表
     }
   },
   methods:{
@@ -240,10 +250,22 @@ export default {
         console.log(err);
       })
     },  
+    getRecommendlist(){//获取首页推荐列表
+        let that=this;
+        axios({
+        url:'/recommend/playlist/u'
+      }).then(res=>{
+        console.log(res);
+        that.recommendList=res.data.data.list;
+      }).catch(err=>{
+        console.log(err);
+      })
+    }
   },
-  created(){//页面创建时,调用获取热门搜索,获取轮播图信息
+  created(){//页面创建时,调用获取热门搜索,获取轮播图信息,获取推荐列表
     this.gethotsearch();
     this.getBanner();
+    this.getRecommendlist();
   }
 }
 </script>
@@ -280,7 +302,9 @@ export default {
   border: 1px solid #fff;
   background-color: #fff;
 }
-
+.tabbar{
+  padding-bottom: 50px;
+}
 .banner{
   width: 100%;
   height: 200px;
@@ -288,5 +312,26 @@ export default {
 }
 .banner img{
   width: 100%;
+}
+.recommedtitle{
+  font-weight: 400;
+  text-align: center;
+  margin-top: 10px;
+}
+.recommendinner{
+  width: 50%;
+  height: 252px;
+  float: left;
+  margin-bottom: 10px;
+  position: relative;
+}
+.recommendinner img{
+  width: 100%;
+}
+.listennum{
+  position: absolute;
+  left: 0;
+  bottom: 45px;
+  color: #fff;
 }
 </style>
