@@ -6,6 +6,7 @@ const Album=()=>import('../views/Album.vue');
 const Singer=()=>import('../views/Singer.vue');
 const Mv=()=>import('../views/Mv.vue');
 const Recommend=()=>import('../views/Recommend.vue');
+const Rank=()=>import('../views/Rank.vue');
 Vue.use(VueRouter)
 
 const routes = [
@@ -37,6 +38,11 @@ const routes = [
         path:'/recommend/:id',
         name:'Recommend',
         component:Recommend
+      },
+      {
+        path:'/rank/:id',
+        name:'Rank',
+        component:Rank
       }
     ]
   },

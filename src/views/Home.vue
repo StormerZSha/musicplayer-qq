@@ -126,7 +126,85 @@
               </div>
           </div>
           </mt-tab-container-item>
-        <mt-tab-container-item id="rank">这是排行选项卡</mt-tab-container-item>
+          <!-- 这是排行选项卡 -->
+        <mt-tab-container-item id="rank">
+          <!-- 巅峰榜 -->
+          <div class="toprank">
+            <div v-for="(item,index) in topRankmsg" :key="index" class="toprankitem"
+             @click="$router.push('/rank/'+item.topId);$store.state.allTabbarisShow=false;$store.state.allSearchisShow=false"
+            >
+              <div class="left">
+                 <img :src="item.picUrl">
+                 <span>{{changeListennum(item.listenNum)}}万</span>
+              </div>
+              <div class="right">
+                 {{item.label}}
+                 <ul>
+                   <li v-for="(i,index) in item.song" :key="index">
+                     {{index+1}}{{i.title}}-{{i.singerName}}
+                   </li>
+                 </ul>
+              </div>
+            </div>
+          </div>
+          <!-- 地区榜 -->
+          <div class="arearank">
+            <div v-for="(item,index) in areaRankmsg" :key="index" class="arearankitem"
+            @click="$router.push('/rank/'+item.topId);$store.state.allTabbarisShow=false;$store.state.allSearchisShow=false"
+            >
+              <div class="left">
+                 <img :src="item.picUrl">
+                 <span>{{changeListennum(item.listenNum)}}万</span>
+              </div>
+              <div class="right">
+                 {{item.label}}
+                 <ul>
+                   <li v-for="(i,index) in item.song" :key="index">
+                     {{index+1}}{{i.title}}-{{i.singerName}}
+                   </li>
+                 </ul>
+              </div>
+            </div>
+          </div>
+          <!-- 特色榜 -->
+          <div class="specialrank">
+            <div v-for="(item,index) in specialRankmsg" :key="index" class="specialrankitem"
+            @click="$router.push('/rank/'+item.topId);$store.state.allTabbarisShow=false;$store.state.allSearchisShow=false"
+            >
+              <div class="left">
+                 <img :src="item.picUrl">
+                 <span>{{changeListennum(item.listenNum)}}万</span>
+              </div>
+              <div class="right">
+                 {{item.label}}
+                 <ul>
+                   <li v-for="(i,index) in item.song" :key="index">
+                     {{index+1}}{{i.title}}-{{i.singerName}}
+                   </li>
+                 </ul>
+              </div>
+            </div>
+          </div>
+          <!-- 全球榜 -->
+          <div class="globalrank">
+            <div v-for="(item,index) in globalRankmsg" :key="index" class="globalrankitem"
+            @click="$router.push('/rank/'+item.topId);$store.state.allTabbarisShow=false;$store.state.allSearchisShow=false"
+            >
+              <div class="left">
+                 <img :src="item.picUrl">
+                 <span>{{changeListennum(item.listenNum)}}万</span>
+              </div>
+              <div class="right">
+                 {{item.label}}
+                 <ul>
+                   <li v-for="(i,index) in item.song" :key="index">
+                     {{index+1}}{{i.title}}-{{i.singerName}}
+                   </li>
+                 </ul>
+              </div>
+            </div>
+          </div>
+        </mt-tab-container-item>
       </mt-tab-container>
     </div>
     <router-view></router-view>
@@ -177,6 +255,10 @@ export default {
       selected:"recommend",//当前选项卡选中的值
       bannerMessage:[],//获取到的轮播图信息
       recommendList:[],//获取到的推荐列表
+      topRankmsg:[],//巅峰总榜信息
+      areaRankmsg:[],//地区总榜信息
+      specialRankmsg:[],//特色总榜信息
+      globalRankmsg:[],//全球总榜信息
     }
   },
   methods:{
@@ -260,12 +342,30 @@ export default {
       }).catch(err=>{
         console.log(err);
       })
+    },
+    getRanklist(){//获取排行列表
+       let that=this;
+       axios({
+         url:'/top/category?showDetail=1'
+       }).then(res=>{
+         console.log(res);
+         that.topRankmsg=res.data.data[0].list;
+         that.areaRankmsg=res.data.data[1].list;
+         that.specialRankmsg=res.data.data[2].list;
+         that.globalRankmsg=res.data.data[3].list;
+       }).catch(err=>{
+         console.log(err);
+       })
+    },
+    changeListennum(num){//处理排行榜听歌数字
+       return parseInt(num/10000); 
     }
   },
-  created(){//页面创建时,调用获取热门搜索,获取轮播图信息,获取推荐列表
+  created(){//页面创建时,调用获取热门搜索,获取轮播图信息,获取推荐列表,获取排行列表
     this.gethotsearch();
     this.getBanner();
     this.getRecommendlist();
+    this.getRanklist();
   }
 }
 </script>
@@ -302,6 +402,9 @@ export default {
   border: 1px solid #fff;
   background-color: #fff;
 }
+.searchresult{
+  padding-bottom:50px;
+}
 .tabbar{
   padding-bottom: 50px;
 }
@@ -333,5 +436,40 @@ export default {
   left: 0;
   bottom: 45px;
   color: #fff;
+}
+.toprankitem,.arearankitem,.specialrankitem,.globalrankitem{
+  width: 94%;
+  height: 98px;
+  margin-top: 10px;
+  margin-left: 3%;
+  box-shadow: 0 0 5px #ccc;
+}
+.toprankitem img,.arearankitem img,.specialrankitem img,.globalrankitem img{
+  width: 100%;
+}
+.left{
+  width: 25%;
+  position: relative;
+}
+.left,.right{
+  float: left;
+}
+.right{
+  width: 70%;
+  margin-left: 15px;
+  margin-top: 5px;
+}
+.left span{
+  color: #fff;
+  position: absolute;
+  left: 0;
+  bottom: 3px;
+}
+li{
+  width: 100%;
+  overflow: hidden;
+  list-style: none;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 </style>
