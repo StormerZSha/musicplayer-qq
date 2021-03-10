@@ -69,8 +69,5 @@ const router = new VueRouter({
   mode:'history',
 })
 
-router.beforeEach((to,from,next)=>{//设置全局导航守卫
-  document.title=to.match[0].meta.title;
-})
 
 export default router
