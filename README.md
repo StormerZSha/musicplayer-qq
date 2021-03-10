@@ -28,6 +28,6 @@ VS code
 Chrome  仿真iphone6/7/8Plus 75%
 ```
 ### 动图演示
-```
-![演示图片](https://github.com/StormerZSha/musicplayer-qq/blob/master/src/assets/replay.gif)
-```
+
+![image](https://github.com/StormerZSha/musicplayer-qq/master/src/assets/replay.gif)
+
